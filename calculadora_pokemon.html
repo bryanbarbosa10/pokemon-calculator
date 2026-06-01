@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Calculadora Pokémon Competitiva</title>
+
+<style>
+body{
+    font-family: Arial;
+    margin:40px;
+    background: url("https://wallpaperaccess.com/full/9397229.png");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: white;
+}
+
+/* 🔥 oscurecer fondo */
+body::before{
+    content: "";
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: rgba(0,0,0,0.65);
+    z-index:-1;
+}
+
+/* inputs */
+input, select{
+    margin:4px;
+    width:160px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: 1px solid white;
+    border-radius: 5px;
+    padding: 4px;
+}
+
+/* botón */
+button{
+    padding:10px;
+    margin-top:10px;
+    cursor:pointer;
+    background: #ffcc00;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* resultado */
+#resultado{
+    margin-top:20px;
+    font-size:18px;
+    background: rgba(0,0,0,0.75);
+    display: inline-block;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+/* títulos */
+h1, h2, label{
+    text-shadow: 2px 2px 4px black;
+}
+
+/* ========================= */
+/* 📚 PANEL DE AYUDA */
+/* ========================= */
+
+#helpBtn{
+    position: fixed;
+    right: 0;
+    top: 40%;
+    background: #ffcc00;
+    color: black;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 10px 0 0 10px;
+    z-index: 1000;
+}
+
+#helpPanelBox{
+    position: fixed;
+    right: -300px;
+    top: 20%;
+    width: 260px;
+    background: rgba(0,0,0,0.85);
+    color: white;
+    padding: 15px;
+    border-radius: 10px 0 0 10px;
+    transition: 0.3s ease;
+    z-index: 999;
+}
+
+#helpPanelBox.open{
+    right: 0;
+}
+#spriteAtacante,
+#spriteDefensor{
+
+    background: rgba(255,255,255,0.1);
+
+    border-radius: 15px;
+
+    padding: 10px;
+
+    margin-top: 10px;
+
+    max-height: 180px;
+}
+#statsAtacante,
+#statsDefensor{
+
+    background: rgba(0,0,0,0.6);
+
+    padding: 10px;
+
+    margin-top: 10px;
+
+    border-radius: 10px;
+
+    width: fit-content;
+
+    font-size: 14px;
+}
+#loginScreen{
+
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0,0,0,0.85);
+    color: white;
+
+    z-index: 9999;
+}
+
+#loginScreen input{
+
+    padding: 10px;
+    font-size: 16px;
+
+}
+#profileBar{
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    background: rgba(0,0,0,0.85);
+    color: white;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 10px 20px;
+
+    z-index: 10000;
+    font-weight: bold;
+}
+
+body{
+    padding-top: 60px;
+}
+</style>
+</head>
+
+<body>
+<body>
+
+<body>
+
+<!-- 🔐 LOGIN -->
+<div id="loginScreen">
+    <h2>🔐 Login Entrenador</h2>
+    <input type="text" id="trainerName" placeholder="Nombre de entrenador">
+    <br><br>
+    <button onclick="login()">Entrar</button>
+</div>
+
+<!-- 👤 BARRA PERFIL -->
+<div id="profileBar">
+    <span id="trainerLabel"></span>
+    <button onclick="logout()">Cerrar sesión</button>
+</div>
+
+<!-- 🎮 APP (CALCULADORA) -->
+<div id="app" style="display:none;">
+
+    <h1>⚔️ Calculadora Pokémon Competitiva</h1>
+
+    <h2>Atacante</h2>
+
+<label>Pokémon Atacante:</label>
+
+<input type="text" id="pokemonAtacante" placeholder="Ej: kingambit">
+
+
+
+<button onclick="cargarPokemonAtacante()">
+
+Cargar
+
+</button>
+
+
+
+<br>
+
+
+
+<img id="spriteAtacante" width="180">
+
+<div id="statsAtacante"></div>
+
+<br><br>
+
+<label>Nivel:</label>
+
+<input type="number" id="nivel" value="50"><br>
+
+
+
+<label>Base Ataque:</label>
+
+<input type="number" id="baseAtq"><br>
+
+
+
+<label>IV Ataque:</label>
+
+<input type="number" id="ivAtq" value="31"><br>
+
+
+
+<label>EV Ataque:</label>
+
+<input type="number" id="evAtq" value="252"><br>
+
+
+
+<label>Boost (-6 a +6):</label>
+
+<input type="number" id="atkboost" value="0"><br>
+
+
+
+<label>Naturaleza:</label>
+
+<select id="natureAtk">
+
+    <option value="1">Neutral</option>
+
+    <option value="1.1">Favorable</option>
+
+    <option value="0.9">Desfavorable</option>
+
+</select><br>
+
+<label>Categoría:</label>
+
+
+
+<select id="categoria">
+
+    <option value="fisico">Físico</option>
+
+    <option value="especial">Especial</option>
+
+</select>
+
+
+
+<br>
+
+<label>Potencia:</label>
+
+<input type="number" id="potencia"><br>
+
+
+
+<label>STAB:</label>
+
+<input type="checkbox" id="stab" checked><br>
+
+
+
+<h2>Defensor</h2>
+
+<label>Pokémon Defensor:</label>
+
+<input type="text" id="pokemonDefensor" placeholder="Ej: corviknight">
+
+
+
+<button onclick="cargarPokemonDefensor()">
+
+Cargar
+
+</button>
+
+
+
+<br>
+
+
+
+<img id="spriteDefensor" width="180">
+
+<div id="statsDefensor"></div>
+
+<br><br>
+
+<label>Base PS:</label>
+
+<input type="number" id="baseHp"><br>
+
+
+
+<label>IV PS:</label>
+
+<input type="number" id="ivHp" value="31"><br>
+
+
+
+<label>EV PS:</label>
+
+<input type="number" id="evHp" value="252"><br>
+
+
+
+<label>Base Defensa:</label>
+
+<input type="number" id="baseDef"><br>
+
+
+
+<label>IV Defensa:</label>
+
+<input type="number" id="ivDef" value="31"><br>
+
+
+
+<label>EV Defensa:</label>
+
+<input type="number" id="evDef" value="252"><br>
+
+
+
+<label>Boost Defensa:</label>
+
+<input type="number" id="defboost" value="0"><br>
+
+
+
+<label>Naturaleza Defensa:</label>
+
+<select id="natureDef">
+
+    <option value="1">Neutral</option>
+
+    <option value="1.1">Favorable</option>
+
+    <option value="0.9">Desfavorable</option>
+
+</select><br>
+
+
+
+<h2>Modificadores</h2>
+
+
+
+<label>Efectividad:</label>
+
+<input type="number" id="tipo" value="1" step="0.25"><br>
+
+
+
+<label>Objeto:</label>
+
+<input type="number" id="objeto" value="1"><br>
+
+
+
+<label>Habilidad:</label>
+
+<input type="number" id="habilidad" value="1"><br>
+
+
+
+<label>Otros:</label>
+
+<input type="number" id="extra" value="1"><br>
+
+
+
+<button onclick="calcular()">Calcular Daño</button>
+
+
+
+<div id="resultado"></div>
+</div>
+
+</div>
+
+</body>
+   
+
+
+<!-- 📚 AYUDA -->
+<div id="helpBtn" onclick="toggleHelp()">Ayuda</div>
+
+<div id="helpPanelBox">
+    <h2>📖 Ayuda rápida</h2>
+    <p>
+    • Usa <b>Nivel 50</b> en Pokémon Champions.<br><br>
+    • IV siempre es <b>31</b> en competitivo.<br><br>
+    • EV si está al máximo: <b>252</b>.<br><br>
+    </p>
+</div>
+
+<script>
+let statsAtacante = {};
+let statsDefensor = {};
+
+function calcularStat(base, iv, ev, nivel){
+    return Math.floor((((2 * base + iv + (ev/4)) * nivel) / 100) + 5);
+}
+
+function calcularHP(base, iv, ev, nivel){
+    return Math.floor((((2 * base + iv + (ev/4)) * nivel) / 100) + nivel + 10);
+}
+
+function multiplicadorBoost(nivel){
+    if(nivel >= 0){
+        return (2 + nivel) / 2;
+    }
+    return 2 / (2 + Math.abs(nivel));
+}
+async function cargarPokemonAtacante(){
+
+    let nombre =
+    document.getElementById("pokemonAtacante")
+    .value
+    .toLowerCase()
+    .trim();
+
+    if(!nombre) return;
+
+    try{
+
+        let respuesta =
+        await fetch(
+        `https://pokeapi.co/api/v2/pokemon/${nombre}`);
+
+        let data =
+        await respuesta.json();
+
+        document.getElementById("spriteAtacante").src =
+        data.sprites.other["official-artwork"].front_default;
+
+        statsAtacante = {
+
+            hp: data.stats[0].base_stat,
+
+            atk: data.stats[1].base_stat,
+
+            def: data.stats[2].base_stat,
+
+            spa: data.stats[3].base_stat,
+
+            spd: data.stats[4].base_stat,
+
+            spe: data.stats[5].base_stat
+
+        };
+        document.getElementById("statsAtacante").innerHTML = `
+<b>${nombre.toUpperCase()}</b><br>
+HP: ${statsAtacante.hp}<br>
+Atk: ${statsAtacante.atk}<br>
+Def: ${statsAtacante.def}<br>
+SpA: ${statsAtacante.spa}<br>
+SpD: ${statsAtacante.spd}<br>
+Spe: ${statsAtacante.spe}
+`;
+
+    }
+    catch{
+
+        alert("Pokémon atacante no encontrado");
+
+    }
+}
+
+async function cargarPokemonDefensor(){
+
+    let nombre =
+    document.getElementById("pokemonDefensor")
+    .value
+    .toLowerCase()
+    .trim();
+
+    if(!nombre) return;
+
+    try{
+
+        let respuesta =
+        await fetch(
+        `https://pokeapi.co/api/v2/pokemon/${nombre}`);
+
+        let data =
+        await respuesta.json();
+
+        document.getElementById("spriteDefensor").src =
+        data.sprites.other["official-artwork"].front_default;
+
+        statsDefensor = {
+
+            hp: data.stats[0].base_stat,
+
+            atk: data.stats[1].base_stat,
+
+            def: data.stats[2].base_stat,
+
+            spa: data.stats[3].base_stat,
+
+            spd: data.stats[4].base_stat,
+
+            spe: data.stats[5].base_stat
+
+        };
+        document.getElementById("statsDefensor").innerHTML = `
+<b>${nombre.toUpperCase()}</b><br>
+HP: ${statsDefensor.hp}<br>
+Atk: ${statsDefensor.atk}<br>
+Def: ${statsDefensor.def}<br>
+SpA: ${statsDefensor.spa}<br>
+SpD: ${statsDefensor.spd}<br>
+Spe: ${statsDefensor.spe}
+`;
+
+        document.getElementById("baseHp").value =
+        statsDefensor.hp;
+
+    }
+    catch{
+
+        alert("Pokémon defensor no encontrado");
+
+    }
+}
+function calcular(){
+
+    let nivel = Number(document.getElementById("nivel").value);
+
+    let atk = calcularStat(
+        Number(document.getElementById("baseAtq").value),
+        Number(document.getElementById("ivAtq").value),
+        Number(document.getElementById("evAtq").value),
+        nivel
+    );
+
+    atk *= multiplicadorBoost(Number(document.getElementById("atkboost").value));
+    atk *= Number(document.getElementById("natureAtk").value);
+
+    let baseDefensa =
+categoria === "fisico"
+? statsDefensor.def
+: statsDefensor.spd;
+
+let def = calcularStat(
+    baseDefensa,
+    Number(document.getElementById("ivDef").value),
+    Number(document.getElementById("evDef").value),
+    nivel
+);
+    
+
+    def *= multiplicadorBoost(Number(document.getElementById("defboost").value));
+    def *= Number(document.getElementById("natureDef").value);
+
+    let hp = calcularHP(
+        Number(document.getElementById("baseHp").value),
+        Number(document.getElementById("ivHp").value),
+        Number(document.getElementById("evHp").value),
+        nivel
+    );
+
+    let potencia = Number(document.getElementById("potencia").value);
+
+    let stab = document.getElementById("stab").checked ? 1.5 : 1;
+
+    let mod =
+        stab *
+        Number(document.getElementById("tipo").value) *
+        Number(document.getElementById("objeto").value) *
+        Number(document.getElementById("habilidad").value) *
+        Number(document.getElementById("extra").value);
+
+    let dañoBase =
+    (((2 * nivel / 5 + 2) * potencia * atk / def) / 50) + 2;
+
+    let min = dañoBase * mod * 0.85;
+    let max = dañoBase * mod;
+
+    let res = `
+    <b>⚔️ Daño:</b> ${min.toFixed(1)} - ${max.toFixed(1)}<br>
+    <b>📊 % HP:</b> ${(min/hp*100).toFixed(1)}% - ${(max/hp*100).toFixed(1)}%<br><br>
+    `;
+
+    if(min >= hp) res += "💀 OHKO garantizado";
+    else if(max < hp) res += "🛡️ Siempre sobrevive";
+    else res += "⚔️ Roll de KO";
+
+    document.getElementById("resultado").innerHTML = res;
+}
+
+function toggleHelp(){
+    document.getElementById("helpPanelBox").classList.toggle("open");
+}
+function login(){
+
+    let name = document.getElementById("trainerName").value.trim();
+
+    if(name === ""){
+        alert("Escribe un nombre de entrenador");
+        return;
+    }
+
+    // guardar nombre
+    localStorage.setItem("trainerName", name);
+
+    // ocultar login
+    document.getElementById("loginScreen").style.display = "none";
+
+    // mostrar app
+    document.getElementById("app").style.display = "block";
+
+}
+window.onload = function(){
+
+    let saved = localStorage.getItem("trainerName");
+
+    if(saved){
+
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("app").style.display = "block";
+
+    }
+
+}
+</script>
+
+</body>
+</html>
